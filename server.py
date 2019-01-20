@@ -32,5 +32,9 @@ async def index(request: Request):
     return json(response_dict, ensure_ascii=False, indent=2)
 
 
+def run_server(to_debug=False):
+    app.run(host="0.0.0.0", port=9090, debug=to_debug)
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=9090, debug=False)
+    run_server()
