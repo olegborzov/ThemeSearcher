@@ -25,7 +25,12 @@ async def setup_index(app, loop):
 async def index(request: Request):
     query = request.raw_args.get("query")
     if not query:
-        return json({"error_msg": "Запрос не указан"}, status=400)
+        return json(
+            {"error_msg": "Запрос не указан"},
+            status=400,
+            ensure_ascii=False,
+            indent=2
+        )
 
     query_themes = app.index.get_themes(query)
     response_dict = {"themes": query_themes, "query": query}
