@@ -18,6 +18,12 @@ class Phrase:
 
 
 class InvertedIndex:
+    """
+    Инвертированный индекс
+    Содержит методы для построения индекса и получения результатов (тем)
+    по запросу.
+    """
+
     _themes: List[str]  # Список фраз
     _phrases: List[Phrase]  # Список ID тем для фраз
     _phrases_ids: Dict[str, int]  # Словарь {фраза: ID фразы в _phrases_themes}
