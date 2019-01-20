@@ -11,24 +11,13 @@ from pymorphy2 import MorphAnalyzer
 __all__ = ("InvertedIndex",)
 
 
-class SingletonMeta(type):
-    def __init__(cls, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        cls.instance = None
-
-    def __call__(cls, *args, **kwargs):
-        if cls.instance is None:
-            cls.instance = super().__call__(*args, **kwargs)
-        return cls.instance
-
-
 @dataclass(frozen=True)
 class Phrase:
     theme_ids: Set[int]
     words_count: int
 
 
-class InvertedIndex(metaclass=SingletonMeta):
+class InvertedIndex:
     _themes: List[str]  # Список фраз
     _phrases: List[Phrase]  # Список ID тем для фраз
     _phrases_ids: Dict[str, int]  # Словарь {фраза: ID фразы в _phrases_themes}

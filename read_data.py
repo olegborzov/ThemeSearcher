@@ -26,7 +26,6 @@ def get_data_path() -> str:
 def read_themes_phrases(data_path: str) -> Dict[str, List[str]]:
     """
     Парсинг json-файла тем с фразами для построения индекса
-    TODO: валидация словаря
 
     :return: словарь тем с фразами
     """
@@ -40,7 +39,6 @@ def read_themes_phrases(data_path: str) -> Dict[str, List[str]]:
 def read_stop_words(data_path: str) -> Set[str]:
     """
     Парсинг файла со стоп-словами
-    TODO: валидация стоп-слов
 
     :return: множество стоп-слов
     """
