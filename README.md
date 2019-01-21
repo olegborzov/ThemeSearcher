@@ -76,3 +76,71 @@ python3 server.py
 ```
 python3 setup.py test
 ```
+
+## Сравнение производительности с реализацией на SQlite3
+Сравним производительность реализованного алгоритма с реализацией на основе БД SQLite3.
+
+#### Производительность реализации на SQlite3
+Реализуем простую таблицу в SQlite3 c помощью ORM Peewee и расширением FTS4. 
+И заполним ее данными из примера - поисковыми фразами (без учета тем).
+```
+from playhouse.sqlite_ext import (CSqliteExtDatabase, FTSModel, DocIDField, SearchField)
+import read_data, index
+
+# Считываем входные данные
+path = read_data.get_data_path()
+themes_phrases = read_data.read_themes_phrases(path)
+
+
+# Создаем In_memory базу данных с полнотекстовым поиском
+db = CSqliteExtDatabase(':memory:')
+
+
+class PhraseIndex(FTSModel):
+    docid = DocIDField()
+    content = SearchField()
+    class Meta:
+        database = db
+        
+db.create_tables([PhraseIndex])
+
+
+# Заливаем фразы в БД
+with db.atomic():
+    db_phrases = []
+    counter = 1
+    for theme, theme_phrases in themes_phrases.items():
+        for phrase in theme_phrases:
+            pi = PhraseIndex.create(docid=counter, content=phrase)
+            db_phrases.append(pi)
+            counter += 1
+```
+
+Измерим производительность полученного решения (пренебрежем влиянием функции list на производительность):
+```
+>>> %%timeit
+... results = list(PhraseIndex.select(PhraseIndex).where(PhraseIndex.content.match("тайская кухня")))
+704 µs ± 10.9 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+```
+
+#### Производительность нашей реализации
+Считаем данные и построим индекс:
+```
+import index, read_data
+
+# Строим индекс
+path = read_data.get_data_path()
+themes_phrases = read_data.read_themes_phrases(path)
+stop_words = read_data.read_stop_words(path)
+myindex = index.InvertedIndex(themes_phrases, stop_words)
+```
+
+Измерим производительность нашего решения:
+```
+>>> %%timeit
+... results = myindex.get_themes("тайская кухня")
+16.6 µs ± 2.06 µs per loop (mean ± std. dev. of 7 runs, 100000 loops each)
+```
+
+Как видим, производительность нашего "велосипедного" решения более чем на порядок
+превосходит реализацию с помощью БД.
